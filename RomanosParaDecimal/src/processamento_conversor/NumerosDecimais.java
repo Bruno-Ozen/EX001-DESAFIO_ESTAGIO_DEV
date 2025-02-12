@@ -3,10 +3,12 @@ package processamento_conversor;
 import java.util.HashMap;
 
 public class NumerosDecimais {
+
     static HashMap<Integer, String> valor_decimais;
-    
-    public NumerosDecimais() {
+
+    static {
         // INICIALIZANDO O HASHMAP COM O VALOR NUMÉRICO DE CADA NÚMERO ROMANO
+        valor_decimais = new HashMap<>();
         valor_decimais.put(1, "I");
         valor_decimais.put(5, "V");
         valor_decimais.put(10, "X");
@@ -33,5 +35,5 @@ public class NumerosDecimais {
 
         return romanos_acc;
     }
-    
+
 }
