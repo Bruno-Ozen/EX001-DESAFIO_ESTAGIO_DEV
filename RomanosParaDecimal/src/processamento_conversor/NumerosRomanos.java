@@ -269,7 +269,7 @@ public class NumerosRomanos {
             i++;
         }
 
-        return infracao_acc > 2 || repetiu_multiplo_de_5 || repetiu_apos_menor(romanos_decompostos);
+        return infracao_acc > 3 || repetiu_multiplo_de_5 || repetiu_apos_menor(romanos_decompostos);
     }
 
     private static boolean verifica_se_e_multiplo_de_5(int numero) {
