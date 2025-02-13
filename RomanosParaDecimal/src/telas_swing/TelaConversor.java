@@ -6,6 +6,7 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+import processamento_conversor.NumerosDecimais;
 import processamento_conversor.NumerosRomanos;
 
 /**
@@ -15,6 +16,23 @@ import processamento_conversor.NumerosRomanos;
 public class TelaConversor extends javax.swing.JFrame {
 
     static String modo_conversao = "DECIMAL-ROMANOS";
+
+    private static void teste_decimal_romanos() {
+        int numero_digitado = 0;
+        String numero_saida = "";
+
+        for (int i = 1; i < 10000; i++) {
+            numero_digitado = i;
+            numero_saida = NumerosDecimais.converter_para_romanos(numero_digitado);
+
+            if (NumerosRomanos.simbolos_sao_romanos(numero_saida) && NumerosRomanos.esta_em_romanos(numero_saida)) {
+                System.out.println("SIM " + numero_digitado + "->-" + numero_saida);
+            } else {
+                System.out.println("NÃO " + numero_digitado + "->-" + numero_saida);
+            }
+        }
+
+    }
 
     public TelaConversor() {
         initComponents();
@@ -128,6 +146,8 @@ public class TelaConversor extends javax.swing.JFrame {
             modo_conversao = "DECIMAL-ROMANOS";
         }
 
+        limpa_campos();
+
     }//GEN-LAST:event_btnSwapActionPerformed
 
     private void txtField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtField1ActionPerformed
@@ -147,46 +167,13 @@ public class TelaConversor extends javax.swing.JFrame {
     }//GEN-LAST:event_txtField2KeyPressed
 
     private void txtField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtField1KeyReleased
-        // PASSO 1: AQUI ELE COLOCA O TEXTO INSERIDO EM CAIXA ALTA
-        // PASSO 2: VERIFICAR SE ESTÁ EM ROMANOS, E MANDAR PARA A CONVERSÃO
 
         String numero_digitado = txtField1.getText();
+
         if (modo_conversao.equals("ROMANOS-DECIMAL")) {
-
-            if (!numero_digitado.equals("")) {
-                if (NumerosRomanos.simbolos_sao_romanos(numero_digitado) && NumerosRomanos.esta_em_romanos(numero_digitado)) {
-                    int numero_em_decimais = NumerosRomanos.converter_para_decimais(numero_digitado);
-                    txtField2.setText(Integer.toString(numero_em_decimais));
-                } else {
-                    JOptionPane.showMessageDialog(rootPane, "ERRO: O NÚMERO DIGITADO NÃO ESTÁ EM ROMANOS OU É INVÁLIDO. ");
-                    JTextField txtPadrao = new javax.swing.JTextField();
-                    txtField1.setDocument(txtPadrao.getDocument());
-                    txtField1.setText("");
-                    txtField2.setText("");
-                    AbstractDocument document = (AbstractDocument) txtField1
-                            .getDocument();
-                    document.setDocumentFilter(new DocumentFilter() {
-                        @Override
-                        public void insertString(DocumentFilter.FilterBypass fb, int offset,
-                                String string, AttributeSet attr)
-                                throws BadLocationException {
-                            super.insertString(fb, offset, string.toUpperCase(), attr);
-                        }
-
-                        @Override
-                        public void replace(DocumentFilter.FilterBypass fb, int offset, int length,
-                                String text, AttributeSet attrs)
-                                throws BadLocationException {
-                            super.insertString(fb, offset, text.toUpperCase(), attrs);
-                        }
-
-                    });
-                }
-            } else{
-                txtField2.setText("");
-            }
+            modo_romanos(numero_digitado);
         } else {
-
+            modo_decimais(numero_digitado);
         }
     }//GEN-LAST:event_txtField1KeyReleased
 
@@ -201,6 +188,8 @@ public class TelaConversor extends javax.swing.JFrame {
                 new TelaConversor().setVisible(true);
             }
         });
+
+        teste_decimal_romanos();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -212,4 +201,67 @@ public class TelaConversor extends javax.swing.JFrame {
     private javax.swing.JTextField txtField1;
     private javax.swing.JTextField txtField2;
     // End of variables declaration//GEN-END:variables
+
+    private void modo_romanos(String numero_digitado) {
+
+        if (!numero_digitado.equals("")) {
+            if (NumerosRomanos.simbolos_sao_romanos(numero_digitado) && NumerosRomanos.esta_em_romanos(numero_digitado)) {
+                int numero_em_decimais = NumerosRomanos.converter_para_decimais(numero_digitado);
+                txtField2.setText(Integer.toString(numero_em_decimais));
+            } else {
+                limpa_campos();
+            }
+        } else {
+            txtField2.setText("");
+        }
+    }
+
+    private void modo_decimais(String numero_digitado) {
+
+        if (!numero_digitado.equals("")) {
+            if (NumerosDecimais.eNumerico(numero_digitado)) {
+                int numero_inteiro = Integer.parseInt(numero_digitado);
+                
+                // PELO TESTE EXECUTADO, FOI DESCOBERTO QUE O MAIOR NÚMERO POSSÍVEL DE SER REPRESENTADO POR
+                // ESSES SÍMBOLOS ROMANOS É 3999, PORTANTO:
+                if (numero_inteiro <= 3999) {
+                    String numero_em_romanos = NumerosDecimais.converter_para_romanos(numero_inteiro);
+                    txtField2.setText(numero_em_romanos);
+                } else {
+                    JOptionPane.showMessageDialog(rootPane, "ERRO: O NÚMERO DIGITADO NÃO ESTÁ EM DECIMAIS INTEIROS, OU É INVÁLIDO. ");
+                    limpa_campos();
+                }
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "ERRO: O NÚMERO DIGITADO NÃO ESTÁ EM DECIMAIS INTEIROS, OU É INVÁLIDO. ");
+                limpa_campos();
+            }
+        } else {
+            txtField2.setText("");
+        }
+    }
+
+    private void limpa_campos() {
+        JTextField txtPadrao = new javax.swing.JTextField();
+        txtField1.setDocument(txtPadrao.getDocument());
+        txtField1.setText("");
+        txtField2.setText("");
+        AbstractDocument document = (AbstractDocument) txtField1
+                .getDocument();
+        document.setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(DocumentFilter.FilterBypass fb, int offset,
+                    String string, AttributeSet attr)
+                    throws BadLocationException {
+                super.insertString(fb, offset, string.toUpperCase(), attr);
+            }
+
+            @Override
+            public void replace(DocumentFilter.FilterBypass fb, int offset, int length,
+                    String text, AttributeSet attrs)
+                    throws BadLocationException {
+                super.insertString(fb, offset, text.toUpperCase(), attrs);
+            }
+
+        });
+    }
 }
