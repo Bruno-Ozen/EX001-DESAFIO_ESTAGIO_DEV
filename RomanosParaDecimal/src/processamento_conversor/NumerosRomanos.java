@@ -65,7 +65,7 @@ public class NumerosRomanos {
                                 maior_depois_do_menor = true;
                             }
                         }
-                        
+
                         if (maior_depois_do_menor) {
                             int numero_alem_do_proximo = valor_romanos.get(romanos_decompostos[i + 2]);
                             result_acc += numero_atual + (numero_alem_do_proximo - proximo_numero);
@@ -253,7 +253,7 @@ public class NumerosRomanos {
         int i = 0;
         boolean repetiu_multiplo_de_5 = false;
 
-        while ((i < (romanos_decompostos.length - 1)) && infracao_acc <= 4 && !repetiu_multiplo_de_5) {
+        while ((i < (romanos_decompostos.length - 1)) && infracao_acc <= 3 && !repetiu_multiplo_de_5) {
             int numero = valor_romanos.get(romanos_decompostos[i]);
             int proximo_num = valor_romanos.get(romanos_decompostos[i + 1]);
 
@@ -269,7 +269,7 @@ public class NumerosRomanos {
             i++;
         }
 
-        return infracao_acc > 3 || repetiu_multiplo_de_5 || repetiu_apos_menor(romanos_decompostos);
+        return infracao_acc > 2 || repetiu_multiplo_de_5 || repetiu_apos_menor(romanos_decompostos);
     }
 
     private static boolean verifica_se_e_multiplo_de_5(int numero) {
@@ -292,7 +292,8 @@ public class NumerosRomanos {
     private static boolean repetiu_apos_menor(char[] romanos_decompostos) {
         /*Raciocínio: Depois que um símbolo é usado uma vez, 
         o mesmo não poderá ser repetido após um símbolo
-        menor que ele.
+        menor que ele, a menos que seja para representar o número 9.
+        Por exemplo: VIV é inválido, porém XIX é válido.
          */
 
         boolean repetiu_apos_menor = false;
@@ -307,7 +308,9 @@ public class NumerosRomanos {
 
                 while ((j < romanos_decompostos.length) && !repetiu_apos_menor) {
                     if (romanos_decompostos[i] == romanos_decompostos[j]) {
-                        repetiu_apos_menor = true;
+                        if (verifica_se_e_multiplo_de_5(romanos_decompostos[i])) {
+                            repetiu_apos_menor = true;
+                        }
                     }
 
                     j++;

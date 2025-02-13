@@ -16,12 +16,13 @@ import processamento_conversor.NumerosRomanos;
 public class TelaConversor extends javax.swing.JFrame {
 
     static String modo_conversao = "DECIMAL-ROMANOS";
-
+    
+    /*
     private static void teste_decimal_romanos() {
         int numero_digitado = 0;
         String numero_saida = "";
 
-        for (int i = 1; i < 10000; i++) {
+        for (int i = 1; i <= 3999; i++) {
             numero_digitado = i;
             numero_saida = NumerosDecimais.converter_para_romanos(numero_digitado);
 
@@ -33,6 +34,7 @@ public class TelaConversor extends javax.swing.JFrame {
         }
 
     }
+*/
 
     public TelaConversor() {
         initComponents();
@@ -71,9 +73,11 @@ public class TelaConversor extends javax.swing.JFrame {
         lblField1 = new javax.swing.JLabel();
         lblTituloPrograma = new javax.swing.JLabel();
         lblLinha = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(420, 290));
+        setMinimumSize(new java.awt.Dimension(370, 300));
+        setPreferredSize(new java.awt.Dimension(420, 330));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -132,6 +136,10 @@ public class TelaConversor extends javax.swing.JFrame {
         lblLinha.setText("_____________________________________________________");
         getContentPane().add(lblLinha, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 40, -1, -1));
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel1.setText("I = 1 | V = 5 | X = 10 | G = 50 | C = 100 | D = 500 | M = 1000 ");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 240, 330, -1));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -189,11 +197,12 @@ public class TelaConversor extends javax.swing.JFrame {
             }
         });
 
-        teste_decimal_romanos();
+        // teste_decimal_romanos();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSwap;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lblField1;
     private javax.swing.JLabel lblField2;
     private javax.swing.JLabel lblLinha;

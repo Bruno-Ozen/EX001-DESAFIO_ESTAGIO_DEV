@@ -126,10 +126,11 @@ public class NumerosDecimais {
             case 8:
                 romanos_temp = valor_decimais.get(5 * ordem)
                         + valor_decimais.get(1 * ordem)
+                        + valor_decimais.get(1 * ordem)
                         + valor_decimais.get(1 * ordem);
                 break;
             case 9:
-                romanos_temp = valor_decimais.get(1 * ordem) + valor_decimais.get(10 * ordem) + valor_decimais.get(1 * ordem);
+                romanos_temp = valor_decimais.get(1 * ordem) + valor_decimais.get(10 * ordem);
                 break;
         }
 
