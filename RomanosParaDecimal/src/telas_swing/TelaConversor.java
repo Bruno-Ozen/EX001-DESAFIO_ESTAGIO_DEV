@@ -18,22 +18,93 @@ public class TelaConversor extends javax.swing.JFrame {
     static String modo_conversao = "DECIMAL-ROMANOS";
 
     private static void teste_decimal_romanos() {
-        int numero_digitado = 0;
-        String numero_saida = "";
-
+        // ESSE MÉTODO CONTA DE 1 A 3999, NO CASO TODOS OS POSSÍVEIS NÚMEROS DO PROGRAMA QUE PODEM SER CONVERTIDOS.
+        // PARA CADA NÚMERO ELE CONVERTE PARA ROMANOS, DEPOIS CONVERTE PARA DECIMAIS, E VERIFICA SE DEPOIS
+        // DA CONVERSÃO OS DOIS DERAM IGUAL
+        
+        int numero_teste = 0;
+        boolean todos_deram_sim = true;
+        
         for (int i = 1; i <= 3999; i++) {
-            numero_digitado = i;
-            numero_saida = NumerosDecimais.converter_para_romanos(numero_digitado);
-
-            if (NumerosRomanos.simbolos_sao_romanos(numero_saida) && NumerosRomanos.logicamente_em_romanos(numero_saida)) {
-                System.out.println("SIM " + numero_digitado + "->-" + numero_saida);
-            } else {
-                System.out.println("NÃO " + numero_digitado + "->-" + numero_saida);
+            numero_teste = i;
+            if (!(NumerosRomanos.converter_para_decimais(NumerosDecimais.converter_para_romanos(numero_teste)) == numero_teste)) {
+                todos_deram_sim = false;
+                System.out.println(numero_teste + " foi convertido errado para " + NumerosRomanos.converter_para_decimais(NumerosDecimais.converter_para_romanos(numero_teste)));
             }
+
         }
-
+        
+        if(todos_deram_sim){
+            System.out.println("TODOS OS TESTES VALIDARAM CORRETAMENTE COM SUCESSO. ");
+        } else{
+            System.out.println("TESTES FALHARAM");
+        }
+        System.out.println("-----------------------------------------------------");
+        testes_de_falhas();
     }
-
+    
+    public static void testes_de_falhas(){
+        System.out.println("TESTES DE FALHAS");
+        System.out.println("");
+        
+        System.out.println("TESTE 1");
+        if((NumerosRomanos.logicamente_em_romanos("IIX") == false) && (NumerosRomanos.logicamente_em_romanos("IIV") == false)){
+            System.out.println("SUCESSO");
+        } else{
+            System.out.println("FALHOU");
+        }
+        System.out.println("");
+        
+        System.out.println("TESTE 2");
+        if((NumerosRomanos.logicamente_em_romanos("XXXX") == false) && (NumerosRomanos.logicamente_em_romanos("GGGG") == false)){
+            System.out.println("SUCESSO");
+        } else{
+            System.out.println("FALHOU");
+        }
+        System.out.println("");
+        
+        System.out.println("TESTE 3");
+        if((NumerosRomanos.logicamente_em_romanos("GIG") == false) && (NumerosRomanos.logicamente_em_romanos("CIC") == false)){
+            System.out.println("SUCESSO");
+        } else{
+            System.out.println("FALHOU");
+        }
+        System.out.println("");
+        
+        System.out.println("TESTE 4");
+        if((NumerosRomanos.logicamente_em_romanos("IVX") == false) && (NumerosRomanos.logicamente_em_romanos("IXM") == false)){
+            System.out.println("SUCESSO");
+        } else{
+            System.out.println("FALHOU");
+        }
+        System.out.println("");
+        
+        System.out.println("TESTE 5");
+        if((NumerosRomanos.logicamente_em_romanos("XIIIIIIII") == false) && (NumerosRomanos.logicamente_em_romanos("MXXXXXXXXX") == false)){
+            System.out.println("SUCESSO");
+        } else{
+            System.out.println("FALHOU");
+        }
+        System.out.println("");
+        
+        System.out.println("TESTE 6");
+        if((NumerosRomanos.logicamente_em_romanos("VV") == false) && (NumerosRomanos.logicamente_em_romanos("GGG") == false) && (NumerosRomanos.logicamente_em_romanos("MMMM") == false)){
+            System.out.println("SUCESSO");
+        } else{
+            System.out.println("FALHOU");
+        }
+        System.out.println("");
+        
+        System.out.println("TESTE 7");
+        if((NumerosRomanos.logicamente_em_romanos("MVMVGXIII") == false) && (NumerosRomanos.logicamente_em_romanos("MMMCMXXXIIIV") == false) && (NumerosRomanos.logicamente_em_romanos("GXGXGXGXGXGGX") == false)){
+            System.out.println("SUCESSO");
+        } else{
+            System.out.println("FALHOU");
+        }
+        System.out.println("");
+        
+    }
+    
     public TelaConversor() {
         initComponents();
         this.setLocationRelativeTo(null);
@@ -181,6 +252,7 @@ public class TelaConversor extends javax.swing.JFrame {
         } else {
             modo_decimais(numero_digitado);
         }
+        
     }//GEN-LAST:event_txtField1KeyReleased
 
     private void txtField1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtField1KeyTyped

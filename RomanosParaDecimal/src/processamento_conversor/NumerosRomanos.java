@@ -98,7 +98,6 @@ public class NumerosRomanos {
         int decimais_ordem_dir;
         int i = 0;
 
-        System.out.println(romanos_decompostos);
         while ((i < romanos_decompostos.size()) && e_romano) {
             decimais_esq = monta_decimais(romanos_decompostos.get(i));
 
@@ -247,19 +246,29 @@ public class NumerosRomanos {
                                                 // Sim, então acumula ambos
                                                 parte_romana.add(romanos[i]);
                                                 parte_romana.add(romanos[i + 1]);
+                                                i++;
                                                 formou_parte_romana = true;
                                             } else if (prox_do_prox == proximo_numero) {
-                                                parte_romana.add(romanos[i]);
-                                                parte_romana.add(romanos[i + 1]);
-                                                parte_romana.add(romanos[i + 2]);
-                                                formou_parte_romana = true;
+                                                if ((parte_romana.size() + 3) <= 4) {
+                                                    parte_romana.add(romanos[i]);
+                                                    parte_romana.add(romanos[i + 1]);
+                                                    parte_romana.add(romanos[i + 2]);
+                                                    formou_parte_romana = true;
+                                                    i++;
+                                                    i++;
+                                                } else if (((parte_romana.size() + 2) <= 4)) {
+                                                    parte_romana.add(romanos[i]);
+                                                    parte_romana.add(romanos[i + 1]);
+                                                    formou_parte_romana = true;
 
-                                                i++;
-
+                                                    i++;
+                                                }
                                             }
 
-                                            if ((i + 1) <= (romanos.length - 1)) {
-                                                i++;
+                                            if (!formou_parte_romana) {
+                                                if ((i + 1) <= (romanos.length - 1)) {
+                                                    i++;
+                                                }
                                             }
 
                                         } else if ((parte_romana.size() + 2) <= 4) {
@@ -267,7 +276,6 @@ public class NumerosRomanos {
 
                                             parte_romana.add(romanos[i]);
                                             parte_romana.add(romanos[i + 1]);
-
                                             // Se tiver como avançar o ponteiro, avança 1
                                             i++;
 
@@ -307,18 +315,24 @@ public class NumerosRomanos {
                                                     // Sim, então acumula ambos
                                                     parte_romana.add(romanos[i]);
                                                     parte_romana.add(romanos[i + 1]);
-
+                                                    i++;
                                                     formou_parte_romana = true;
                                                 } else if (prox_do_prox == proximo_numero) {
                                                     parte_romana.add(romanos[i]);
                                                     parte_romana.add(romanos[i + 1]);
+                                                    parte_romana.add(romanos[i + 2]);
+                                                    formou_parte_romana = true;
+                                                    i++;
+                                                    i++;
                                                 } else if (prox_do_prox > proximo_numero) {
                                                     parte_romana.add(romanos[i]);
                                                     formou_parte_romana = true;
                                                 }
 
-                                                if ((i + 1) <= (romanos.length - 1)) {
-                                                    i++;
+                                                if (!formou_parte_romana) {
+                                                    if ((i + 1) <= (romanos.length - 1)) {
+                                                        i++;
+                                                    }
                                                 }
 
                                             } else {
@@ -326,7 +340,7 @@ public class NumerosRomanos {
 
                                                 parte_romana.add(romanos[i]);
                                                 parte_romana.add(romanos[i + 1]);
-
+                                                
                                                 // Se tiver como avançar o ponteiro, avança 1
                                                 if ((i + 1) <= (romanos.length - 1)) {
                                                     i++;
@@ -361,10 +375,18 @@ public class NumerosRomanos {
                                         i++;
                                         formou_parte_romana = true;
                                     } else if (prox_do_prox == proximo_numero) {
-                                        parte_romana.add(romanos[i]);
-                                        parte_romana.add(romanos[i + 1]);
-                                        parte_romana.add(romanos[i + 2]);
-                                        i++;
+                                        if (!eUm5de10em10(proximo_numero)) {
+                                            parte_romana.add(romanos[i]);
+                                            parte_romana.add(romanos[i + 1]);
+                                            parte_romana.add(romanos[i + 2]);
+                                            formou_parte_romana = true;
+                                            i++;
+                                            i++;
+
+                                        } else {
+                                            parte_romana.add(romanos[i]);
+                                            formou_parte_romana = true;
+                                        }
                                     } else if (prox_do_prox > proximo_numero) {
                                         parte_romana.add(romanos[i]);
                                         formou_parte_romana = true;
@@ -373,15 +395,20 @@ public class NumerosRomanos {
                                 } else {
                                     // Não tem.
 
-                                    parte_romana.add(romanos[i]);
-                                    parte_romana.add(romanos[i + 1]);
+                                    if (!eUm5de10em10(proximo_numero)) {
+                                        parte_romana.add(romanos[i]);
+                                        parte_romana.add(romanos[i + 1]);
 
-                                    // Se tiver como avançar o ponteiro, avança 1
-                                    if ((i + 1) <= (romanos.length - 1)) {
-                                        i++;
+                                        // Se tiver como avançar o ponteiro, avança 1
+                                        if ((i + 1) <= (romanos.length - 1)) {
+                                            i++;
+                                        }
+
+                                        formou_parte_romana = true;
+                                    } else {
+                                        parte_romana.add(romanos[i]);
+                                        formou_parte_romana = true;
                                     }
-
-                                    formou_parte_romana = true;
 
                                 }
 
@@ -456,6 +483,8 @@ public class NumerosRomanos {
                                     }
                                 } else {
                                     parte_romana.add(romanos[i]);
+                                    parte_romana.add(romanos[i + 1]);
+                                    i++;
                                 }
 
                             } else {
@@ -472,12 +501,17 @@ public class NumerosRomanos {
                                 incrementar = false;
                             } else {
                                 // Os dois possuem a mesma ordem, ou uma ordem está uma acima da outra?
-                                if (NumerosDecimais.descobre_ordem(numero_atual) == NumerosDecimais.descobre_ordem(proximo_numero)
-                                        || (NumerosDecimais.descobre_ordem(numero_atual) * 10) == NumerosDecimais.descobre_ordem(proximo_numero)) {
+                                // O primeiro número é um 1?
+                                if ((!eUm5de10em10(numero_atual)
+                                        && eUm5de10em10(proximo_numero)
+                                        && ((NumerosDecimais.descobre_ordem(numero_atual)) == NumerosDecimais.descobre_ordem(proximo_numero)))
+                                        || ((!eUm5de10em10(numero_atual)
+                                        && !(eUm5de10em10(proximo_numero)
+                                        && ((NumerosDecimais.descobre_ordem(numero_atual) * 10) == NumerosDecimais.descobre_ordem(proximo_numero)))))) {
+
                                     // Sim, então acumula-se ambos e incrementa
                                     parte_romana.add(romanos[i]);
                                     parte_romana.add(romanos[i + 1]);
-
                                     if ((i + 1) <= (romanos.length - 1)) {
                                         i++;
                                     }
@@ -541,6 +575,7 @@ public class NumerosRomanos {
     }
 
     private static boolean eUm5de10em10(int numero) {
+
         boolean e_um5 = false;
         int cinco_10_em_10_acc = 5;
 
@@ -556,12 +591,4 @@ public class NumerosRomanos {
 
     }
 
-    /*
-    private static boolean ordem_por_ordem_da_10(int decimais_ordem_esq, int decimais_ordem_dir) {
-        // ESSE MÉTODO RETORNA SE A ORDEM ESQUERDA DIVIDIDA PELA DIREITA DÁ 10
-        
-        return (decimais_ordem_esq / decimais_ordem_dir) == 10;
-
-    }
-     */
 }
