@@ -1,5 +1,6 @@
 package processamento_conversor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class NumerosRomanos {
@@ -25,84 +26,20 @@ public class NumerosRomanos {
 
     // MÉTODOS PARA CONVERSÃO
     public static int converter_para_decimais(String romanos) {
-        char[] romanos_decompostos = romanos.toCharArray();
+        int decimais_acc = 0;
 
-        if (romanos_decompostos.length == 1) {
-            return valor_romanos.get(romanos_decompostos[0]);
-        } else {
-            /*
-            RACIOCÍNIO: PERCORRER DA ESQUERDA PARA A DIREITA DE 1 EM 1. CASO SEJA LOCALIZADO
-            UM NÚMERO MENOR ANTES DE UM MAIOR (POR EXEMPLO, IV ou XIV), FAZER A
-            SUBTRAÇÃO
-             */
-            int result_acc = 0;
-            int i = 0;
+        ArrayList<ArrayList<Character>> romanos_decompostos;
+        romanos_decompostos = decompor(romanos.toCharArray());
 
-            while (i <= romanos_decompostos.length - 1) {
-                int numero_atual = valor_romanos.get(romanos_decompostos[i]);
-
-                if (i < (romanos_decompostos.length - 1)) {
-                    int proximo_numero = valor_romanos.get(romanos_decompostos[i + 1]);
-
-                    // 1o Caso: Os dois números são iguais. Logo, apenas se soma eles
-                    if (proximo_numero == numero_atual) {
-                        result_acc += numero_atual + proximo_numero;
-
-                        if ((i + 1) < romanos_decompostos.length) {
-                            i++;
-                        }
-                    } else if (proximo_numero < numero_atual) {
-                        // 2o Caso: O próximo número é menor que o atual. Nesse caso, é necessário
-                        // verificar se há um maior depois do menor, para fazer a subtração.
-                        // Caso não houver, apenas soma os dois números e joga no acumulador
-                        boolean maior_depois_do_menor = false;
-                        // VERIFICANDO SE EXISTE UM NÚMERO ALÉM DO PRÓXIMO
-                        if ((i + 2) < romanos_decompostos.length) {
-                            // CERTO, EXISTE. O NÚMERO ALÉM DO PRÓXIMO É MAIOR QUE O PRÓXIMO?
-                            int numero_alem_do_proximo = valor_romanos.get(romanos_decompostos[i + 2]);
-
-                            if (numero_alem_do_proximo > proximo_numero) {
-                                maior_depois_do_menor = true;
-                            }
-                        }
-
-                        if (maior_depois_do_menor) {
-                            int numero_alem_do_proximo = valor_romanos.get(romanos_decompostos[i + 2]);
-                            result_acc += numero_atual + (numero_alem_do_proximo - proximo_numero);
-                            i++;
-                            i++;
-                        } else {
-                            result_acc += numero_atual + proximo_numero;
-
-                            if ((i + 1) < romanos_decompostos.length) {
-                                i++;
-                            }
-                        }
-                    } else if (proximo_numero > numero_atual) {
-                        // 3o Caso: O próximo número é maior do que o número atual. Assim, subtrai-se do próximo
-                        // o número atual, e joga no acumulador
-                        result_acc += proximo_numero - numero_atual;
-
-                        if ((i + 1) < romanos_decompostos.length) {
-                            i++;
-                        }
-
-                    }
-
-                } else if (i == (romanos_decompostos.length - 1)) {
-                    // Soma o último número que sobrar
-                    result_acc += numero_atual;
-                }
-
-                i++;
-            }
-
-            return result_acc;
+        for (int i = 0; i < romanos_decompostos.size(); i++) {
+            decimais_acc += monta_decimais(romanos_decompostos.get(i));
         }
+
+        return decimais_acc;
 
     }
 
-    // MÉTODO AUXILIAR PARA A CONVERSÃO
+    // MÉTODOS AUXILIARES PARA A CONVERSÃO
     public static boolean simbolos_sao_romanos(String romanos) {
         // Esse método verifica se todos os símbolos são romanos, mas não
         // valida logicamente a cadeia de caracteres
@@ -126,234 +63,505 @@ public class NumerosRomanos {
         } while (i < romanos_decompostos.length && e_romano);
 
         return e_romano;
+
     }
 
-    public static boolean esta_em_romanos(String romanos) {
-        // Esse método verifica se o numero inserido, já considerado em caracteres romanos,
-        // está logicamente ordenado em romanos.
+    public static boolean logicamente_em_romanos(String romanos) {
+        // BASEADO NA LÓGICA DE CONVERSÃO PARA DECIMAIS IMPLEMENTADA, O MÉTODO VERIFICASEEROMANOS FOI
+        // MUDADO PARA LOGICAMENTE ROMANOS.
+        // AGORA ESSE MÉTODO TRATA CADA SEQUÊNCIA DE CARACTERES ROMANOS COMO UMA ORDEM DECIMAL (UNIDADES,
+        // DEZENAS, CENTENAS...
+        /*
+        EXEMPLOS:
+        logicamente_em_romanos("IV")
+        true
+        ----------------------------------------
+        logicamente_em_romanos("MMMCMXCIX")
+        true
+        ----------------------------------------
+        logicamente_em_romanos("XIV")
+        true
+        ----------------------------------------
+        logicamente_em_romanos("XIVI")
+        false, porque seria 10 + 4, mas o ultimo 1 sobrando tenta competir com o 4 pela ordem das UNIDADES.
+        as sequências romanas válidas são tratadas como um único número de uma ordem decimal. Se sobrar, é inválido.
+        ----------------------------------------
+        logicamente_em_romanos("XXXIII")
+        true, porque seria 30 + 3
+        
+         */
+        boolean e_romano = true;
+        ArrayList<ArrayList<Character>> romanos_decompostos = decompor(romanos.toCharArray());
+        int decimais_esq;
+        int decimais_dir;
+        int decimais_ordem_esq;
+        int decimais_ordem_dir;
+        int i = 0;
 
-        // O raciocínio adotado foi esse:
-        // Tem que ser IV ou IX, ou seja:
-        // Ser divisível por múltiplos de 1 e 5 (multiplicados de 10 em 10);
-        // Ser divisível por múltiplos de 1 e 10 (multiplicados de 10 em 10);
-        // Qualquer alternativa diferente desta é inválida
-        boolean e_romano = false;
-        char[] romanos_decompostos = romanos.toCharArray();
+        System.out.println(romanos_decompostos);
+        while ((i < romanos_decompostos.size()) && e_romano) {
+            decimais_esq = monta_decimais(romanos_decompostos.get(i));
 
-        if (romanos_decompostos.length == 1) {
-            // 1o Caso: O numero possui apenas 1 digito
-            return true;
-        } else if (infringiu_repeticoes(romanos_decompostos) || teve_maior_apos_menor(romanos_decompostos)) {
-            return false;
-        } else {
-            // 2o caso: O numero possui vários dígitos, mas está em ordem decrescente
+            // Tem próximo?
+            if ((i + 1) <= (romanos_decompostos.size() - 1)) {
+                // Sim.
+                decimais_dir = monta_decimais(romanos_decompostos.get(i + 1));
+                decimais_ordem_esq = NumerosDecimais.descobre_ordem(decimais_esq);
+                decimais_ordem_dir = NumerosDecimais.descobre_ordem(decimais_dir);
 
-            if (!e_decrescente(romanos_decompostos)) {
-                // 3o caso: O número não é decrescente, porém está logicamente correto em
-                // termos de ser divisivel por 1 e 5, ou 1 e 10 em potencias de 10, de 2 em 2.
+                if ((decimais_ordem_esq <= decimais_ordem_dir)) {
+                    e_romano = false;
+                }
 
-                // ANOTAÇÃO -> VERIFICAR SE HÁ MAIS DE 1 SÍMBOLO NUMERICAMENTE MENOR ANTES
-                // DE UM GRANDE. SE HOUVER, ENTÃO É INVÁLIDO. POR EXEMPLO:
-                // IIIIX É UM NÚMERO INVÁLIDO
-                int i = romanos_decompostos.length - 1;
-                boolean par_valido = true;
+            }
 
-                do {
-                    if (i > 0) {
-                        int num_direita = valor_romanos.get(romanos_decompostos[i]);
-                        int num_esquerda = valor_romanos.get(romanos_decompostos[i - 1]);
+            i++;
+        }
 
-                        if (num_direita > num_esquerda) {
-                            boolean antes_esq_valido = true;
-                            if (i > 1) {
-                                int num_antes_da_esq = valor_romanos.get(romanos_decompostos[i - 2]);
+        return e_romano;
 
-                                if ((num_direita > num_esquerda) && (num_antes_da_esq <= num_esquerda)) {
-                                    antes_esq_valido = false;
-                                }
+    }
+
+    public static int monta_decimais(ArrayList<Character> parte_romana) {
+        // ESSE MÉTODO RETORNA O VALOR EM DECIMAIS DE CADA PARTE ROMANA DECOMPOSTA, NÃO CONSIDERANDO
+        // A VALIDADE LÓGICA DOS MESMOS.
+
+        /* RACIOCÍNIO: A PARTE ROMANA PODERÁ SER:
+            NUMERO 1 -> 1 MULTIPLO DE 1
+            NUMERO 2 -> 2 MULTIPLOS DE 1
+            NUMERO 3 -> 3 MULTIPLOS DE 1
+            NUMERO 4 -> 1 MULTIPLO DE 1 ANTES DE UM MULTIPLO DE 5
+            NUMERO 5 -> 1 MULTIPLO DE 5
+            NUMERO 6 -> 1 MULTIPLO DE 5 E 1 MULTIPLO DE 1
+            NUMERO 7 -> 1 MULTIPLO DE 5 E 2 MULTIPLOS DE 1
+            NUMERO 8 -> 1 MULTIPLO DE 5 E 3 MULTIPLOS DE 1
+            NUMERO 9 -> 1 MULTIPLO DE 1 ANTES DE UM MULTIPLO DE 10
+         */
+        int qtd_digitos_pt_romana = parte_romana.size();
+        int decimais_temp = 0;
+
+        switch (qtd_digitos_pt_romana) {
+            case 1:
+                decimais_temp = valor_romanos.get(parte_romana.get(0));
+                break;
+            case 2:
+                int numero_esquerda = valor_romanos.get(parte_romana.get(0));
+                int numero_direita = valor_romanos.get(parte_romana.get(1));
+                if (numero_esquerda == numero_direita) {
+                    decimais_temp = numero_esquerda * 2;
+                } else if (numero_esquerda > numero_direita) {
+                    decimais_temp = numero_esquerda + numero_direita;
+                } else if (numero_esquerda < numero_direita) {
+                    decimais_temp = numero_direita - numero_esquerda;
+                }
+
+                break;
+            case 3:
+                int numero1 = valor_romanos.get(parte_romana.get(0));
+                int numero2 = valor_romanos.get(parte_romana.get(1));
+                int numero3 = valor_romanos.get(parte_romana.get(2));
+                decimais_temp = numero1 + numero2 + numero3;
+                break;
+            case 4:
+                numero1 = valor_romanos.get(parte_romana.get(0));
+                numero2 = valor_romanos.get(parte_romana.get(1));
+                numero3 = valor_romanos.get(parte_romana.get(2));
+                int numero4 = valor_romanos.get(parte_romana.get(3));
+                decimais_temp = numero1 + numero2 + numero3 + numero4;
+
+                break;
+        }
+
+        return decimais_temp;
+    }
+
+    private static ArrayList<ArrayList<Character>> decompor(char[] romanos) {
+        // ESSE MÉTODO DECOMPÕE UM NÚMERO ROMANO EM UMA LISTA DE PARTES DE NÚMEROS ROMANOS,
+        // CADA UM REPRESENTANDO UMA ORDEM NUMÉRICA. ELE É VITAL PARA O FUNCIONAMENTO DO
+        // CONVERSOR ROMANOS-DECIMAL E VALIDAÇÃO. EXEMPLOS:
+        /*
+        decompor([X, X, X]) -> [[X, X, X]] 
+        (uma lista de listas de ordens. Nesse caso retorna uma única ordem, que seria a do 10
+        
+        decompor([X, X, X, X]) -> [[X, X, X], [X]]
+        (duas ordens, ambas de 10, uma sendo 30 e outra 10. Casos como esse são usados no validador
+        para descobrir se é inválido, já que não podem ter duas ordens numéricas iguais no sistema
+        numérico romano.
+        
+        decompor([V, V]) -> [[V], [V])
+        
+        decompor([M, M, M, CC, X, X, X, I, I]) -> [[M, M, M], [C, C], [X, X, X], [I, I]])
+        
+         */
+
+        ArrayList<ArrayList<Character>> romanos_decompostos = new ArrayList<ArrayList<Character>>();
+
+        int i = 0;
+
+        if (romanos.length > 1) {
+
+            while (i < romanos.length) {
+                ArrayList<Character> parte_romana = new ArrayList<Character>();
+                int numero_atual = valor_romanos.get(romanos[i]);
+                boolean formou_parte_romana = false;
+                boolean incrementar = true;
+
+                // Variável responsável por contar a quantidade de dígitos de 1, 10, 100 ou 1000 acumulados
+                // em uma parte romana, para que caso exceda 3 partes, ele crie uma nova parte romana,
+                // separando essa parte das outras. Por exemplo:
+                // XXXX seria separado em [[XXX], [X]]
+                while (!formou_parte_romana && (i < romanos.length)) {
+
+                    // Tem próximo?
+                    if ((i + 1) <= (romanos.length - 1)) {
+                        // Sim
+                        numero_atual = valor_romanos.get(romanos[i]);
+                        int proximo_numero = valor_romanos.get(romanos[i + 1]);
+
+                        // O próximo é igual?
+                        if (numero_atual == proximo_numero) {
+                            int ordem_atual = NumerosDecimais.descobre_ordem(numero_atual);
+                            int ordem_anterior = 0;
+
+                            // Esse numero atual possui um anterior?
+                            if ((i - 1) >= 0) {
+                                int numero_anterior = valor_romanos.get(romanos[i - 1]);
+                                ordem_anterior = NumerosDecimais.descobre_ordem(numero_anterior);
                             }
 
-                            int ordem = 1;
-                            boolean acertou = false;
+                            if (ordem_anterior != 0) {
+                                // O anterior é da mesma ordem numérica?
 
-                            // Verificando se esse par é válido
-                            if (!antes_esq_valido) {
-                                par_valido = false;
-                            } else {
-                                while (((((1 * ordem) <= num_esquerda) && ((5 * ordem) <= num_direita))
-                                        || (((1 * ordem) <= num_esquerda) && ((10 * ordem) <= num_direita)))
-                                        && !acertou) {
+                                if (ordem_anterior == ordem_atual) {
+                                    // O próximo não é múltiplo de 5 de 10 em 10?
+                                    if (!eUm5de10em10(proximo_numero)) {
+                                        // Se não é um 5 de 10 em 10, então ele pode ser
+                                        // 1, 10, 100, 1000...
+                                        // Tem mais algum além do próximo?
+                                        if ((i + 2) <= (romanos.length - 1)) {
+                                            // Sim.
+                                            int prox_do_prox = valor_romanos.get(romanos[i + 2]);
 
-                                    if (((((1 * ordem) == num_esquerda) && (5 * ordem) == num_direita))
-                                            || (((1 * ordem) == num_esquerda)) && ((10 * ordem) == num_direita)) {
-                                        acertou = true;
-                                    }
+                                            // O próximo do próximo é menor que o próximo?
+                                            if (prox_do_prox < proximo_numero) {
+                                                // Sim, então acumula ambos
+                                                parte_romana.add(romanos[i]);
+                                                parte_romana.add(romanos[i + 1]);
+                                                formou_parte_romana = true;
+                                            } else if (prox_do_prox == proximo_numero) {
+                                                parte_romana.add(romanos[i]);
+                                                parte_romana.add(romanos[i + 1]);
+                                                parte_romana.add(romanos[i + 2]);
+                                                formou_parte_romana = true;
 
-                                    ordem *= 10;
-                                }
+                                                i++;
 
-                                if (acertou) {
-                                    par_valido = true;
+                                            }
 
-                                    if ((i - 1) >= 0) {
-                                        i--;
+                                            if ((i + 1) <= (romanos.length - 1)) {
+                                                i++;
+                                            }
+
+                                        } else if ((parte_romana.size() + 2) <= 4) {
+                                            // Não tem.
+
+                                            parte_romana.add(romanos[i]);
+                                            parte_romana.add(romanos[i + 1]);
+
+                                            // Se tiver como avançar o ponteiro, avança 1
+                                            i++;
+
+                                            formou_parte_romana = true;
+
+                                        } else {
+                                            parte_romana.add(romanos[i]);
+
+                                            formou_parte_romana = true;
+                                        }
+
+                                        // Certo. O número atual é maior que o próximo?
+                                    } else {
+                                        // Se ele é um 5 de 10 em 10, então ele pode ser
+                                        // 5, 50, 500...
+                                        parte_romana.add(romanos[i]);
+                                        formou_parte_romana = true;
+
                                     }
 
                                 } else {
-                                    par_valido = false;
+                                    if (!parte_romana.isEmpty()) {
+                                        formou_parte_romana = true;
+                                        incrementar = false;
+                                    } else {
+                                        // O próximo não é múltiplo de 5 de 10 em 10?
+                                        if (!eUm5de10em10(proximo_numero)) {
+                                            // Se não é um 5 de 10 em 10, então ele pode ser
+                                            // 1, 10, 100, 1000...
+                                            // Tem mais algum além do próximo?
+                                            if ((i + 2) <= (romanos.length - 1)) {
+                                                // Sim.
+                                                int prox_do_prox = valor_romanos.get(romanos[i + 2]);
+
+                                                // O próximo do próximo é menor ou igual ao próximo?
+                                                if (prox_do_prox < proximo_numero) {
+                                                    // Sim, então acumula ambos
+                                                    parte_romana.add(romanos[i]);
+                                                    parte_romana.add(romanos[i + 1]);
+
+                                                    formou_parte_romana = true;
+                                                } else if (prox_do_prox == proximo_numero) {
+                                                    parte_romana.add(romanos[i]);
+                                                    parte_romana.add(romanos[i + 1]);
+                                                } else if (prox_do_prox > proximo_numero) {
+                                                    parte_romana.add(romanos[i]);
+                                                    formou_parte_romana = true;
+                                                }
+
+                                                if ((i + 1) <= (romanos.length - 1)) {
+                                                    i++;
+                                                }
+
+                                            } else {
+                                                // Não tem.
+
+                                                parte_romana.add(romanos[i]);
+                                                parte_romana.add(romanos[i + 1]);
+
+                                                // Se tiver como avançar o ponteiro, avança 1
+                                                if ((i + 1) <= (romanos.length - 1)) {
+                                                    i++;
+                                                }
+
+                                                formou_parte_romana = true;
+
+                                            }
+
+                                            // Certo. O número atual é maior que o próximo?
+                                        } else {
+                                            // Se ele é um 5 de 10 em 10, então ele pode ser
+                                            // 5, 50, 500...
+                                            parte_romana.add(romanos[i]);
+                                            formou_parte_romana = true;
+
+                                        }
+                                    }
+
+                                }
+                            } else {
+                                // Esse número tem um além do próximo?
+                                if ((i + 2) <= (romanos.length - 1)) {
+                                    // Sim.
+                                    int prox_do_prox = valor_romanos.get(romanos[i + 2]);
+
+                                    // O próximo do próximo é menor que o próximo?
+                                    if (prox_do_prox < proximo_numero) {
+                                        // Sim, então acumula ambos
+                                        parte_romana.add(romanos[i]);
+                                        parte_romana.add(romanos[i + 1]);
+                                        i++;
+                                        formou_parte_romana = true;
+                                    } else if (prox_do_prox == proximo_numero) {
+                                        parte_romana.add(romanos[i]);
+                                        parte_romana.add(romanos[i + 1]);
+                                        parte_romana.add(romanos[i + 2]);
+                                        i++;
+                                    } else if (prox_do_prox > proximo_numero) {
+                                        parte_romana.add(romanos[i]);
+                                        formou_parte_romana = true;
+                                    }
+
+                                } else {
+                                    // Não tem.
+
+                                    parte_romana.add(romanos[i]);
+                                    parte_romana.add(romanos[i + 1]);
+
+                                    // Se tiver como avançar o ponteiro, avança 1
+                                    if ((i + 1) <= (romanos.length - 1)) {
+                                        i++;
+                                    }
+
+                                    formou_parte_romana = true;
+
                                 }
 
                             }
+
+                        } else if (numero_atual > proximo_numero) {
+                            // Sim
+
+                            numero_atual = valor_romanos.get(romanos[i]);
+                            int ordem_atual = NumerosDecimais.descobre_ordem(numero_atual);
+                            int ordem_anterior = 0;
+                            int ordem_proximo = NumerosDecimais.descobre_ordem(proximo_numero);
+
+                            if (ordem_proximo == ordem_atual) {
+                                // Esse numero atual possui um anterior?
+                                if ((i - 1) >= 0) {
+                                    int numero_anterior = valor_romanos.get(romanos[i - 1]);
+                                    ordem_anterior = NumerosDecimais.descobre_ordem(numero_anterior);
+                                }
+
+                                // Ele tem um anterior?
+                                if (ordem_anterior != 0) {
+                                    // Sim
+
+                                    if (ordem_anterior == ordem_atual) {
+                                        int numero_anterior = valor_romanos.get(romanos[i - 1]);
+
+                                        // O anterior é igual?
+                                        if (numero_atual == numero_anterior) {
+                                            // Sim
+                                            // Então acumula o atual, e formou uma parte romana
+                                            parte_romana.add(romanos[i]);
+                                            formou_parte_romana = true;
+                                        } else {
+                                            // Não. Se ele não é igual ao anterior. Então ele vai acumulando
+                                            // a parte romana, desde que os números façam parte da mesma ordem
+
+                                            parte_romana.add(romanos[i]);
+                                            parte_romana.add(romanos[i + 1]);
+
+                                            if ((i + 1) <= (romanos.length - 1)) {
+                                                i++;
+                                            }
+
+                                        }
+                                    } else {
+                                        if (!parte_romana.isEmpty()) {
+                                            formou_parte_romana = true;
+                                            incrementar = false;
+                                        } else {
+                                            int numero_anterior = valor_romanos.get(romanos[i - 1]);
+
+                                            // O anterior é igual?
+                                            if (numero_atual == numero_anterior) {
+                                                // Sim
+                                                // Então acumula o atual, e formou uma parte romana
+                                                parte_romana.add(romanos[i]);
+                                                formou_parte_romana = true;
+                                            } else {
+                                                // Não. Se ele não é igual ao anterior. Então ele vai acumulando
+                                                // a parte romana, desde que os números façam parte da mesma ordem
+
+                                                parte_romana.add(romanos[i]);
+                                                parte_romana.add(romanos[i + 1]);
+
+                                                if ((i + 1) <= (romanos.length - 1)) {
+                                                    i++;
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    parte_romana.add(romanos[i]);
+                                }
+
+                            } else {
+                                parte_romana.add(romanos[i]);
+                                formou_parte_romana = true;
+                            }
+
+                            // O número atual é menor que o próximo número?
+                        } else if (numero_atual < proximo_numero) {
+                            // Sim
+
+                            if (!parte_romana.isEmpty()) {
+                                formou_parte_romana = true;
+                                incrementar = false;
+                            } else {
+                                // Os dois possuem a mesma ordem, ou uma ordem está uma acima da outra?
+                                if (NumerosDecimais.descobre_ordem(numero_atual) == NumerosDecimais.descobre_ordem(proximo_numero)
+                                        || (NumerosDecimais.descobre_ordem(numero_atual) * 10) == NumerosDecimais.descobre_ordem(proximo_numero)) {
+                                    // Sim, então acumula-se ambos e incrementa
+                                    parte_romana.add(romanos[i]);
+                                    parte_romana.add(romanos[i + 1]);
+
+                                    if ((i + 1) <= (romanos.length - 1)) {
+                                        i++;
+                                    }
+
+                                    formou_parte_romana = true;
+
+                                } else {
+                                    // Certo. Se não estão nas ordens válidas, (uma acima da outra), então o método vai formar uma ordem separada
+                                    // para cada, mesmo já sabendo que está numericamente errado para os números romanos.
+                                    // Logo:
+
+                                    parte_romana.add(romanos[i]);
+                                    formou_parte_romana = true;
+                                }
+
+                            }
+
                         }
-                        if ((i - 1) >= 0) {
-                            i--;
+
+                        // Não formou uma parte romana? Então incrementa
+                        if (!formou_parte_romana) {
+                            i++;
                         }
-                    }
-                } while (((i - 1) >= 0) && par_valido);
 
-                if (i == 0 && par_valido) {
-                    e_romano = true;
-                }
-            } else {
-                e_romano = true;
-            }
+                    } else {
+                        // Não tem próximo. 
+                        numero_atual = valor_romanos.get(romanos[i]);
+                        int numero_anterior = valor_romanos.get(romanos[i - 1]);
 
-            return e_romano;
-        }
-
-    }
-
-    private static boolean e_decrescente(char[] romanos_decompostos) {
-        // RETORNA SE A SEQUENCIA DE CARACTERES ROMANOS É NUMÉRICAMENTE DECRESCENTE.
-        // POR EXEMPLO: CXVIII
-
-        int i = 0;
-        boolean e_decrescente = true;
-
-        while (i < (romanos_decompostos.length - 1)) {
-            int num_direita = valor_romanos.get(romanos_decompostos[i + 1]);
-            int num_esquerda = valor_romanos.get(romanos_decompostos[i]);
-
-            if (num_direita > num_esquerda) {
-                e_decrescente = false;
-            }
-
-            i++;
-        }
-
-        return e_decrescente;
-    }
-
-    private static boolean infringiu_repeticoes(char[] romanos_decompostos) {
-        // RETORNA SE A SEQUENCIA DE NUMEROS ROMANOS REPETIU UM SÍMBOLO A PONTO
-        // DE SE TORNAR UMA SEQUENCIA ERRADA. POR EXEMPLO:
-        // XIIII É INVÁLIDO, POIS UM SÍMBOLO REPETIU MAIS QUE 3 VEZES
-
-        int infracao_acc = 1;
-        int i = 0;
-        boolean repetiu_multiplo_de_5 = false;
-
-        while ((i < (romanos_decompostos.length - 1)) && infracao_acc <= 3 && !repetiu_multiplo_de_5) {
-            int numero = valor_romanos.get(romanos_decompostos[i]);
-            int proximo_num = valor_romanos.get(romanos_decompostos[i + 1]);
-
-            if (numero == proximo_num) {
-
-                repetiu_multiplo_de_5 = verifica_se_e_multiplo_de_5(numero);
-
-                infracao_acc++;
-            } else {
-                infracao_acc = 0;
-            }
-
-            i++;
-        }
-
-        return infracao_acc > 3 || repetiu_multiplo_de_5 || repetiu_apos_menor(romanos_decompostos);
-    }
-
-    private static boolean verifica_se_e_multiplo_de_5(int numero) {
-        int ordem = 1;
-        boolean e_multiplo_de_5 = false;
-
-        while ((5 * ordem) <= numero) {
-
-            if ((5 * ordem) == numero) {
-                e_multiplo_de_5 = true;
-            }
-
-            ordem *= 10;
-        }
-
-        return e_multiplo_de_5;
-
-    }
-
-    private static boolean repetiu_apos_menor(char[] romanos_decompostos) {
-        /*Raciocínio: Depois que um símbolo é usado uma vez, 
-        o mesmo não poderá ser repetido após um símbolo
-        menor que ele, a menos que seja para representar o número 9.
-        Por exemplo: VIV é inválido, porém XIX é válido.
-         */
-
-        boolean repetiu_apos_menor = false;
-        int i = 0;
-
-        while ((i < romanos_decompostos.length - 1) && !repetiu_apos_menor) {
-            int numero_esquerda = valor_romanos.get(romanos_decompostos[i]);
-            int numero_direita = valor_romanos.get(romanos_decompostos[i + 1]);
-
-            if (numero_direita < numero_esquerda) {
-                int j = i + 2;
-
-                while ((j < romanos_decompostos.length) && !repetiu_apos_menor) {
-                    if (romanos_decompostos[i] == romanos_decompostos[j]) {
-                        if (verifica_se_e_multiplo_de_5(romanos_decompostos[i])) {
-                            repetiu_apos_menor = true;
+                        if (numero_atual == numero_anterior) {
+                            parte_romana.add(romanos[i]);
+                        } else if (parte_romana.isEmpty()) {
+                            parte_romana.add(romanos[i]);
+                        } else if (numero_atual < numero_anterior) {
+                            parte_romana.add(romanos[i]);
+                            incrementar = true;
                         }
-                    }
 
-                    j++;
-                }
-            }
+                        formou_parte_romana = true;
 
-            i++;
-        }
-
-        return repetiu_apos_menor;
-    }
-
-    private static boolean teve_maior_apos_menor(char[] romanos_decompostos) {
-        /*Raciocínio: Se aparecer um símbolo maior após um símbolo menor, então esse método
-        retorna verdadeiro, sinalizando que houve uma infração, pois:
-        VIX não é um número romano válido, já que o mesmo possui o simbolo X (10) após
-        o menor, no caso o V (5).
-        Nesse exemplo, se I é menor que V, então todos os números depois de V devem ser menores que V.
-         */
-
-        boolean infringiu_maior_apos_menor = false;
-        int i = 0;
-
-        while ((i < romanos_decompostos.length - 1) && !infringiu_maior_apos_menor) {
-            int numero_esquerda = valor_romanos.get(romanos_decompostos[i]);
-            int numero_direita = valor_romanos.get(romanos_decompostos[i + 1]);
-
-            if (numero_esquerda > numero_direita) {
-                int j = i + 2;
-
-                while ((j < romanos_decompostos.length) && !infringiu_maior_apos_menor) {
-                    if (valor_romanos.get(romanos_decompostos[j]) > valor_romanos.get(romanos_decompostos[i])) {
-                        infringiu_maior_apos_menor = true;
                     }
 
-                    j++;
                 }
-            }
 
-            i++;
+                romanos_decompostos.add(parte_romana);
+
+                if (incrementar) {
+                    i++;
+                }
+
+            }
+        } else {
+            ArrayList<Character> parte_romana = new ArrayList<Character>();
+            parte_romana.add(romanos[0]);
+            romanos_decompostos.add(parte_romana);
+
         }
 
-        return infringiu_maior_apos_menor;
+        return romanos_decompostos;
+
     }
 
+    private static boolean eUm5de10em10(int numero) {
+        boolean e_um5 = false;
+        int cinco_10_em_10_acc = 5;
+
+        while (cinco_10_em_10_acc <= numero) {
+            if (cinco_10_em_10_acc == numero) {
+                e_um5 = true;
+            }
+
+            cinco_10_em_10_acc *= 10;
+        }
+
+        return e_um5;
+
+    }
+
+    /*
+    private static boolean ordem_por_ordem_da_10(int decimais_ordem_esq, int decimais_ordem_dir) {
+        // ESSE MÉTODO RETORNA SE A ORDEM ESQUERDA DIVIDIDA PELA DIREITA DÁ 10
+        
+        return (decimais_ordem_esq / decimais_ordem_dir) == 10;
+
+    }
+     */
 }

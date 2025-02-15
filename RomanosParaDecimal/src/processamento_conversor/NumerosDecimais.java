@@ -27,11 +27,7 @@ public class NumerosDecimais {
         // PASSO 1: DECOMPONDO O NUMERO DECIMAL:
 
         String romanos_acc = "";
-        int ordem = 1;
-        while (Math.floor(decimais / ordem) != 0) {
-            ordem *= 10;
-        }
-        ordem /= 10;
+        int ordem = descobre_ordem(decimais);
 
         ArrayList<Integer> decimais_decompostos = decompor(decimais, ordem);
         // PASSO 2: COM A LISTA DE ORDENS NUMÉRICAS, AGORA PARA CADA ORDEM SERÁ MONTADO
@@ -87,7 +83,7 @@ public class NumerosDecimais {
             } else {
                 decimais_decompostos.add((int) Math.floor(digitos_atuais));
             }
-            
+
             ordem /= 10;
         }
 
@@ -135,6 +131,16 @@ public class NumerosDecimais {
         }
 
         return romanos_temp;
+    }
+
+    public static int descobre_ordem(int decimais) {
+        int ordem = 1;
+        
+        while (Math.floor(decimais / ordem) != 0) {
+            ordem *= 10;
+        }
+        
+        return ordem /= 10;
     }
 
 }

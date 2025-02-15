@@ -16,8 +16,7 @@ import processamento_conversor.NumerosRomanos;
 public class TelaConversor extends javax.swing.JFrame {
 
     static String modo_conversao = "DECIMAL-ROMANOS";
-    
-    /*
+
     private static void teste_decimal_romanos() {
         int numero_digitado = 0;
         String numero_saida = "";
@@ -26,7 +25,7 @@ public class TelaConversor extends javax.swing.JFrame {
             numero_digitado = i;
             numero_saida = NumerosDecimais.converter_para_romanos(numero_digitado);
 
-            if (NumerosRomanos.simbolos_sao_romanos(numero_saida) && NumerosRomanos.esta_em_romanos(numero_saida)) {
+            if (NumerosRomanos.simbolos_sao_romanos(numero_saida) && NumerosRomanos.logicamente_em_romanos(numero_saida)) {
                 System.out.println("SIM " + numero_digitado + "->-" + numero_saida);
             } else {
                 System.out.println("NÃO " + numero_digitado + "->-" + numero_saida);
@@ -34,7 +33,6 @@ public class TelaConversor extends javax.swing.JFrame {
         }
 
     }
-*/
 
     public TelaConversor() {
         initComponents();
@@ -196,8 +194,9 @@ public class TelaConversor extends javax.swing.JFrame {
                 new TelaConversor().setVisible(true);
             }
         });
-
-        // teste_decimal_romanos();
+        
+        //teste_decimal_romanos();
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -214,10 +213,16 @@ public class TelaConversor extends javax.swing.JFrame {
     private void modo_romanos(String numero_digitado) {
 
         if (!numero_digitado.equals("")) {
-            if (NumerosRomanos.simbolos_sao_romanos(numero_digitado) && NumerosRomanos.esta_em_romanos(numero_digitado)) {
-                int numero_em_decimais = NumerosRomanos.converter_para_decimais(numero_digitado);
-                txtField2.setText(Integer.toString(numero_em_decimais));
+            if (NumerosRomanos.simbolos_sao_romanos(numero_digitado)) {
+                if (NumerosRomanos.logicamente_em_romanos(numero_digitado) && (numero_digitado.length() <= 9)) {
+                    int numero_em_decimais = NumerosRomanos.converter_para_decimais(numero_digitado);
+                    txtField2.setText(Integer.toString(numero_em_decimais));
+                } else {
+                    JOptionPane.showMessageDialog(this, "ERRO: OS SÍMBOLOS ROMANOS DIGITADOS NÃO SÃO VÁLIDOS. ");
+                    limpa_campos();
+                }
             } else {
+                JOptionPane.showMessageDialog(this, "ERRO: OS SÍMBOLOS DIGITADOS NÃO SÃO ROMANOS. ");
                 limpa_campos();
             }
         } else {
@@ -230,18 +235,24 @@ public class TelaConversor extends javax.swing.JFrame {
         if (!numero_digitado.equals("")) {
             if (NumerosDecimais.eNumerico(numero_digitado)) {
                 int numero_inteiro = Integer.parseInt(numero_digitado);
-                
+
                 // PELO TESTE EXECUTADO, FOI DESCOBERTO QUE O MAIOR NÚMERO POSSÍVEL DE SER REPRESENTADO POR
                 // ESSES SÍMBOLOS ROMANOS É 3999, PORTANTO:
                 if (numero_inteiro <= 3999) {
-                    String numero_em_romanos = NumerosDecimais.converter_para_romanos(numero_inteiro);
-                    txtField2.setText(numero_em_romanos);
+                    if (numero_inteiro > 0) {
+                        String numero_em_romanos = NumerosDecimais.converter_para_romanos(numero_inteiro);
+                        txtField2.setText(numero_em_romanos);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "ERRO: 0 OU NÚMEROS MENORES QUE 0 NÃO PODEM SER REPRESENTADOS EM NÚMEROS ROMANOS. ");
+                        limpa_campos();
+                    }
+
                 } else {
-                    JOptionPane.showMessageDialog(rootPane, "ERRO: O NÚMERO DIGITADO NÃO ESTÁ EM DECIMAIS INTEIROS, OU É INVÁLIDO. ");
+                    JOptionPane.showMessageDialog(this, "ERRO: O NÚMERO DIGITADO NÃO PODE SER REPRESENTADO PELO PROGRAMA. LIMITE: NÚMEROS ATÉ 3999. ");
                     limpa_campos();
                 }
             } else {
-                JOptionPane.showMessageDialog(rootPane, "ERRO: O NÚMERO DIGITADO NÃO ESTÁ EM DECIMAIS INTEIROS, OU É INVÁLIDO. ");
+                JOptionPane.showMessageDialog(this, "ERRO: O NÚMERO DIGITADO NÃO É INTEIRO. ");
                 limpa_campos();
             }
         } else {
